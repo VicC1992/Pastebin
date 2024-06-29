@@ -1,7 +1,6 @@
 package com.pastebin.Pastebin.controllers;
-
-import com.pastebin.Pastebin.models.Paragraph;
-import com.pastebin.Pastebin.repository.ParagraphRepository;
+import com.pastebin.Pastebin.models.TextContent;
+import com.pastebin.Pastebin.repository.TextRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,48 +8,46 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import java.util.ArrayList;
 import java.util.Optional;
 
 @Controller
 public class TextController {
-
     @Autowired
-    private ParagraphRepository paragraphRepository;
+    private TextRepository textRepository;
 
     @GetMapping("/text")
     public String about(Model model) {
-        Iterable<Paragraph> paragraphs = paragraphRepository.findAll();
-        model.addAttribute("paragraphs", paragraphs);
-        return "text-list";
+        Iterable<TextContent> texts = textRepository.findAll();
+        model.addAttribute("texts", texts);
+        return "textList";
     }
 
     @GetMapping("/text/add")
     public String textAdd( Model model) {
-        return "text-add";
+        return "addText";
     }
 
     @PostMapping("/text/add")
-    public String newTextAdd(@RequestParam String title, @RequestParam String full_text, Model model) {
-        Paragraph paragraph = new Paragraph(title, full_text);
-        paragraphRepository.save(paragraph);
+    public String newTextAdd(@RequestParam String title, @RequestParam String fullText, Model model) {
+        TextContent textContent = new TextContent(title, fullText);
+        textRepository.save(textContent);
         return "redirect:/text";
     }
 
     @GetMapping("/text/{id}")
     public String textDetails(@PathVariable(value = "id") long id, Model model) {
-        Optional<Paragraph> paragraph = paragraphRepository.findById(id);
-        ArrayList<Paragraph> result = new ArrayList<>();
-        paragraph.ifPresent(result:: add);
-        model.addAttribute("paragraph", result);
-        return "paragraph-details";
+        Optional<TextContent> text = textRepository.findById(id);
+        ArrayList<TextContent> result = new ArrayList<>();
+        text.ifPresent(result:: add);
+        model.addAttribute("text", result);
+        return "fullText";
     }
 
     @PostMapping("/text/{id}/remove")
     public String textDelete(@PathVariable(value = "id") long id, Model model) {
-        Paragraph paragraph = paragraphRepository.findById(id).orElseThrow();
-        paragraphRepository.delete(paragraph);
+        TextContent textContent = textRepository.findById(id).orElseThrow();
+        textRepository.delete(textContent);
         return "redirect:/text";
     }
 }
